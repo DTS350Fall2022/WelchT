@@ -1,0 +1,67 @@
+---
+title: "Task2"
+author: "Tyler Welch"
+date: "8/31/2022"
+output: html_document
+  theme:cosmo
+  keep_md:true
+---
+
+```{r}
+library(knitr)
+```
+
+```{r}
+sin(pi/4)
+
+```
+```{r}
+x<-10/3
+##Allowed-Jack,Tyler,John Not Allowed-Tim,Mike,Randle
+##They are not allowed beacuse they are not educated  
+```
+
+```{r}
+(MySequence<- seq(1,50, length.out=7))
+```
+```{r}
+my_vector<-c(1,5,12,31,19)
+```
+```{r}
+7+5==12
+##The program checks if its true or false 
+```
+```{r}
+(7+4=12)|(5-4=1)
+##This means that 7+4 and 5-4 have been assigned the values of 12 and 1
+```
+```{r}
+my_variable <- 10
+my_varıable
+##The secound variable doesnt have an i
+```
+```{r}
+library(tidyverse)
+
+ggplot(dota = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+##dota needs to be spelled data 
+
+fliter(mpg, cyl = 8)
+filter(diamond, carat > 3)
+##Fliter is spelled wrong 
+##Diamond needs to be spelled diamonds 
+##You need a double == sign near cylinder 
+library(tidyverse)
+
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+
+filter(mpg, cyl == 8)
+filter(diamonds, carat > 3)
+
+```
+```{r}
+##It pops up with a menu with shortcuts for the keyboard. It can also be found in tools-> Keyboard shortcuts help 
+```
+
