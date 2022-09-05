@@ -1,0 +1,35 @@
+---
+title: "Task 3"
+author: "Tyler"
+date: "9/5/2022"
+output: html_document
+---
+```{r}
+?iris
+```
+
+```{r}
+ggplot(data=iris)+
+  geom_point(mapping = aes(x = Sepal.Length, y = Sepal.Width, color=Species))
+
+```
+```{r}
+ggplot(iris)+
+  geom_point(mapping = aes(x = Petal.Width, y=Petal.Length, color = Species, shape = Species))+
+  facet_wrap(~ Species)
+```
+```{r}
+ggplot(iris)+
+  geom_point(mapping = aes(x =Petal.Length, y=Petal.Width, color=Species, shape=Species))+
+  geom_smooth(method='lm',mapping = aes(y=Petal.Width, x=Petal.Length))
+  
+```
+```{r}
+ggplot(iris,aes(x=Sepal.Length, fill=Species))+
+  geom_bar(rwidth = .18, color="black")
+```
+###Which species of flower has both biggest petal lengeth and petal width? 
+###Each visualization has showed me that virginica seems to be the biggest flower as the top two visuals show that to be true. 
+
+
+
