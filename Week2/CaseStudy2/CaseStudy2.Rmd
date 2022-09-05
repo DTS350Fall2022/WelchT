@@ -1,0 +1,36 @@
+---
+title: "CaseStudy2"
+author: "Tyler"
+date: "9/5/2022"
+output: CaseStudy2
+editor_options: 
+  chunk_output_type: console
+---
+```{r}
+library(tidyverse)
+
+urlfile="https://github.com/WJC-Data-Science/DTS350/raw/master/coral.csv"
+mydata <- read_csv(url(urlfile))
+?mydata
+```
+
+```{r}
+head(mydata)
+```
+
+```{r}
+ggplot(mydata, aes(fill=Event,y=Value, x=Year))+
+  geom_bar(position="stack", stat="identity")+
+  facet_wrap(~Entity, nrow = 4, scales ="free")
+###The bleaching does seem to become more frequent when comapred to 1980 but it is very difficult to tell. 
+###Depending on location and what time period that you are comparing it to your answer can be changed
+```
+
+```{r}
+ggplot(data=mydata)+
+  geom_point(mapping = aes(x =Year, y=Value))
+###The graph that I created shows all the data from the data set where the value equals number of events and
+###year equals the year that it happened 
+```
+
+
