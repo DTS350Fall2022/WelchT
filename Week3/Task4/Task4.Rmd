@@ -1,0 +1,67 @@
+---
+title: "Task4"
+author: "Tyler"
+date: "9/6/2022"
+output: 
+  html_document:
+    keep_md: yes
+---
+
+
+```{r}
+library(tidyverse)
+iris_data <- as_tibble (iris)
+iris_data
+```
+
+```{r}
+a.sepal<-arrange(iris, Sepal.Length)
+head(a.sepal,10)
+
+```
+
+
+```{r}
+testdat<-select(iris_data,Species,Petal.Width)
+testdat
+
+```
+
+```{r}
+Species_mean <- iris_data %>%
+  group_by(Species)%>%
+  summarise(mean(Petal.Width),mean(Petal.Length),mean(Sepal.Length), mean(Sepal.Width), na.rm =TRUE)
+Species_mean
+```
+
+
+```{r}
+iris_size <- iris_data %>%
+  mutate(Sepal.Size = 
+           case_when(
+             Sepal.Length < 5 ~ "small",
+             Sepal.Length >= 5 & Sepal.Length < 6.5 ~ "medium",
+             Sepal.Length >= 6.5 ~ "large"))
+head(iris_size)   
+
+```
+
+```{r}
+iris_ranking<-arrange(iris_data, desc(Petal.Length))
+mutate(iris_ranking, rank=min_rank(Petal.Length))
+
+```
+
+```{r}
+?summarise_all
+means_sd_species <- iris_data %>%
+  group_by(Species) %>%
+  summarize_all(list(Mean=mean, Std_dev = sd))
+means_sd_species
+
+```
+###Why is male testostrone continuing to decline over the years?
+###Has social media had an impact on the mental health of the youth?
+###Is the increase of plastics in our food caused an increase in health issues?
+###Feedback 5-10 people: When I asked people about my questions there were many intresting comments. The first question most people had theroies that it is lack of excerise and the decline in healthy eating has caused a decrease in testostrone. For the next question, every person said that socail media has had a major impact on mental health and there are plenty of stuides that can prove it. For my final question a few people brought up the recent article that microplastics have been found in human blood. Every person said that they are sure plastics have negative health effects. 
+###Professtional Summary: I talked to a doctor who is a friend of my mom about these questions. He told me that all the questions I have asked is exactly what the medical field is trying to answer today. The doctor told me that microplatics are one of the major contributing factors to testostrone decline. He said that plastic shrink testicals and disrupt hormones in both males and females. It is becoming a major health issue that cannot be avovided because plastics are used in everything. He also said that anti-depressent use is at an all time high, and siad that social media has a big impact on the youth. He told me that he has young men and women come to him everyday asking for a perscription to fix thier depresstion. 
