@@ -1,0 +1,53 @@
+---
+title: "CaseStudy3"
+author: "Tyler"
+date: "9/12/2022"
+output: 
+ html_document:
+   keep_md: TRUE
+---
+
+
+
+```{r}
+library(gapminder)
+library(dplyr)
+library(ggplot2)
+library(tidyverse)
+```
+```{r}
+aveweath <-  filter(gapminder, country != "Kuwait")
+view(aveweath)
+```
+
+
+```{r}
+ggplot(data = aveweath) +
+  geom_point(mapping = aes(x = lifeExp, y = gdpPercap, color = continent, size = pop)) +
+  facet_wrap(~ year, nrow = 1) +
+  scale_y_continuous(trans = "sqrt") +
+  xlab("Life Expectancy") + ylab("GDP Per Capita") +
+  theme_bw()
+```
+
+
+```{r}
+Wieght <- aveweath %>%
+  group_by(year, continent) %>%
+  summarise(average = weighted.mean(gdpPercap), population = pop/10000)
+Wieght
+```
+
+
+```{r}
+ggplot(data = aveweath, mapping = aes(x = year, y = gdpPercap)) +
+  geom_point(data = aveweath, mapping = aes(color = continent)) +
+  geom_line(data = aveweath, mapping = aes(color = continent, group = country)) +
+  geom_point(data = Wieght, aes(x = year, y = average, size = population)) +
+  geom_line(data = Wieght, aes(x = year, y = average)) +
+  facet_wrap(~ continent, nrow = 1) +
+  xlab("Year") + ylab("GDP Per Capita") +
+  scale_size_continuous(name = "Population (100k)", breaks = c(10000, 20000, 30000)) +
+  theme_bw()
+```
+
