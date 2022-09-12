@@ -1,0 +1,78 @@
+---
+title: "Task 5"
+author: "Tyler"
+date: "9/11/2022"
+output: 
+  html_document:
+      code_folding: 'hide'
+      keep_md: true 
+editor_options: 
+  chunk_output_type: console
+---
+```{r}
+library(tidyverse)
+library(downloader)
+library(readxl)
+```
+
+```{r}
+SoloData <- read_csv("solo-artist-followers.csv")
+BillboardData <- read_csv("billboard-hits.csv")
+view(SoloData)
+view(BillboardData)
+str(SoloData)
+str(BillboardData)
+```
+All the data types imported and were read in correctly 
+
+```{r}
+top_six <- BillboardData %>%
+  group_by(name) %>%
+  filter(n() > 6, band != "")
+view(top_six)
+```
+
+
+```{r}
+top_bands <- BillboardData %>%
+  group_by(band) %>%
+  filter(name %in% top_six$band)
+head(top_bands)
+#Switch band names with the name data.
+top_bands <-rename(top_bands, band = name, name = band)
+head(top_bands)
+view(top_bands)
+```
+
+```{r}
+ggplot(data = top_six, aes(x = peak_date, y = peak_rank, color = name, group = name)) +
+  geom_point() +
+  geom_line() +
+  geom_point(data = top_bands, color = "black") +
+  geom_line(data = top_bands, color = "black", linetype = "dotted") +
+  facet_wrap(~band, scales = "free") +
+  xlab("peak_rank") + ylab("peak_rank")
+  theme_bw()
+```
+In genral it seems that all the bands gained listens as the years went on. Destiny's child seem to have massive jumps
+randomly. I assume that when they realsed new music or some sort of seasonal thing. The Jonas Brothers lost the most 
+listens as the years went on epsically at the peak around 2011.One Direction seems to be the most consistant and is 
+an overall great. 
+```{r}
+Rentals<-read_csv("House_Rent_Dataset.csv")
+head(Rentals)
+```
+The data above includes 4,700 apartments, houses, and other building availble fron rent. The data comes from the country of India that has a booming housing industry. 
+https://www.kaggle.com/datasets/iamsouravbanerjee/house-rent-prediction-dataset?resource=download 
+```{r}
+Tempuratures<-read_csv("Climate Data.csv")
+head(Tempuratures)
+```
+Every month, John Christy and Dr. Roy Spencer update global temperature datasets that represent the piecing together of the temperature data from a total of fifteen instruments flying on different satellites over the years.
+https://www.kaggle.com/datasets/csafrit2/latest-global-temperatures 
+```{r}
+Crypto<-read_csv("Crypto Prices - Sheet1.csv")
+head(Crypto)
+```
+his is the complete dataset of crypto prices which will updated daily. The file contains prices, volume, market capacity and circulating supply of all currencies. This file covers 500 currencies prices in USD.
+https://www.kaggle.com/datasets/batrosjamali/cryptocurrency-prices-complete-data
