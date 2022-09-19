@@ -1,0 +1,98 @@
+---
+title: "Task&7"
+author: "Tyler"
+date: "9/19/2022"
+output: 
+ html_document:
+   keep_md: TRUE
+---
+
+```{r}
+library(ggplot2)
+library(readr)
+library(knitr)
+library(tidyverse)
+library(dplyr)
+library(forcats)
+library(downloader)
+```
+
+
+
+```{r}
+download.file("https://raw.githubusercontent.com/hadley/r4ds/master/data/heights.csv", "heights")
+
+Height <- read_csv("heights")
+
+Height
+
+```
+
+
+```{r}
+HeightEd <- Height %>%
+  mutate(ed = as.factor(ed)) %>%
+  mutate(ed = fct_recode(ed,
+                         "primary" = "3",
+                         "primary" = "4",
+                         "primary" = "5",
+                         "primary" = "6",
+                         "secondary" = "7",
+                         "secondary" = "8",
+                         "secondary" = "9",
+                         "secondary" = "10",
+                         "secondary" = "11",
+                         "highschoolgrad" = "12",
+                         "associates" = "13",
+                         "associates" = "14",
+                         "associates" = "15",
+                         "bachelors" =  "16",
+                         "mastersdoctorate" = "17",
+                         "mastersdoctorate" = "18"))
+
+```
+
+```{r}
+HeightEd1 <- HeightEd %>%
+  group_by(race) %>%
+  count(ed)
+
+HeightEd1
+
+```
+
+```{r}
+ggplot(HeightEd1, mapping=aes(ed,n, fill=race ))+
+  geom_bar(stat="identity", position = "dodge")
+
+```
+
+```{r}
+HeightEd2 <- HeightEd %>%
+  group_by(sex) %>%
+  count(ed)
+
+HeightEd2
+```
+
+```{r}
+ggplot(HeightEd2, mapping=aes(ed,n, fill=sex ))+
+  geom_bar(stat="identity", position = "dodge")
+```
+
+```{r}
+HeightEd3 <- HeightEd %>%
+  group_by(race) %>%
+  count(earn)
+
+HeightEd3
+```
+
+```{r}
+ggplot(data=HeightEd3, mapping=aes(x=earn,y=n, color=factor(race)))+
+  geom_point()+
+  labs(y="Number of people", x="Earnings")
+```
+
+In the data set above on the x axis it shows the amount earned by the indivual and on the y it shows the amount of indiviuals that earned it. THe different color points represent the race of the person or people at that point. What I learned is that white indivuals have a lot more top earners than any other race. Also even at low incomes white people have a lot more indviuals at those points than any other race. 
+
