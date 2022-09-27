@@ -1,0 +1,54 @@
+---
+title: "ToothGrowth"
+author: "Tyler"
+date: "9/22/2022"
+output: html_document
+---
+
+```{r}
+library(ggplot2)
+library(readr)
+library(knitr)
+library(tidyverse)
+library(dplyr)
+```
+
+```{r}
+?ToothGrowth
+head(ToothGrowth)
+ToothGrowth
+```
+
+```{r}
+ggplot(ToothGrowth, aes(x=dose, y=len)) + 
+  geom_bar(stat = "identity")+
+  labs(x="Dose Strength", y="Length of Tooth", title="Higher Dosage Cuases Longer Tooth Length")
+```
+On the above plot I chose a bar chart because it can clearly show a rise. The plot above demonstrates that a higher dosage causes the tooth length to increase. 
+
+```{r}
+ggplot(ToothGrowth, aes(x=as.factor(supp), y=len)) + 
+    geom_boxplot(fill="lightblue") + 
+    labs(x="Supplement Type", y="Length of Tooth", title="Supplement Type Has Effect On Tooth Length")
+```
+On the above plot the reason I chose a boxplot is that you can see much more information than a simple bar chart. As can be seen above on average OJ had a higher tooth length than VC, but VC had a wide array of tooth length and had tooth lengths much higher than OJ. 
+
+```{r}
+?mtcars
+```
+
+```{r}
+ggplot( mtcars, aes(x=wt, y=mpg)) +
+    geom_line(color="lightgreen") +
+    geom_point(color="blue")+
+    labs(x="Wieght of Car(in tousands)", y="Miles Per Gallon", title="As a Car gets Heaver Miles Per Gallon Goes Down")+
+  theme_bw()
+```
+I chose a line graph with points because it can cleary show each car and how the MPG is effect by the weight of the car. This plot demonstrates that as the weight of the car goes up miles per gallon goes down. 
+```{r}
+ggplot( mtcars, aes(x=mpg, y=hp)) + 
+  labs(x="Miles Per Gallon", y="Horsepower", title="Low Horsepower Leads to High Miles Per Gallon")+
+  theme_bw()+
+    geom_point()
+```
+I chose a scatter plot because I think it can show that there are outliers while showing a genral trend. Here you can see that as MPG goes up, horsepower goes down. 
