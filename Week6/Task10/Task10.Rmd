@@ -1,0 +1,44 @@
+---
+title: "Task10"
+author: "Tyler"
+date: "9/30/2022"
+output: 
+html_document:
+    keep_md: True
+    code_folding: 'hide'
+---
+
+```{r}
+library(ggplot2)
+library(readr)
+library(knitr)
+library(tidyverse)
+library(dplyr)
+library(forcats)
+library(downloader)
+```
+
+
+```{r}
+childmort<- read_csv(file='financing_healthcare.csv')
+```
+```{r}
+head(childmort)
+childmort
+```
+```{r}
+childmort2 <- childmort %>%
+  group_by(year) %>%
+  filter(year > 1800)%>%
+  drop_na(child_mort)%>%
+  summarise(avg_cm = mean(child_mort))
+```
+
+
+```{r plot1}
+ggplot(childmort2, aes(x=year, y=avg_cm)) +
+  geom_line()+
+  labs(x="Year", y="Average Child Mortality", title="Average Child Mortaloty Has Gone Down Through the Years")
+  
+```
+
