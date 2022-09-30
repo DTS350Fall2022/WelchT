@@ -1,0 +1,101 @@
+---
+title: "CaseStudy5"
+author: "Tyler"
+date: "9/27/2022"
+output: 
+ html_document:
+    keep_md: True
+    code_folding: 'hide'
+---
+
+Brief Explanation:
+
+```{r}
+library(ggplot2)
+library(readr)
+library(knitr)
+library(tidyverse)
+library(dplyr)
+```
+FIVETHIRTYEIGHT 
+The graphic that I saw on FiveThirtyEight was very eye opening. Typically when you think of gun violance, the first thing that comes to mund is police shootings, mass shootings, and terriorisum. But as the graphic showed me, the data is completely different. Almost two-thrids of all gun dealths are from suicide, and 85% of that is male. Also other than mass shootings terriosum and police shootings, the rest are mostly young african american men. It seems that gun death is a male issue, with most of it coming from suicide. 
+
+```{r}
+#download data as tempfile
+gundata <- tempfile()
+download.file("https://raw.githubusercontent.com/fivethirtyeight/guns-data/master/full_data.csv", gundata, mode = "wb")
+mygundata <- read_csv(gundata)
+head(mygundata)
+str(mygundata)
+mygundatanew <- mygundata %>%
+  filter(age != "", intent != "")
+str(mygundatanew)
+```
+
+```{r plot1}
+age <- mygundatanew %>%
+  mutate(agebracket = 
+           case_when(
+             age < 15 ~ "under 15",
+             age >= 15 & age <= 34 ~ "15-34",
+             age >=35 & age <= 64 ~ "35-64",
+             age >= 65 ~ "65+"),
+         agebracket = fct_relevel(agebracket, "under 15", "15-34", "35-64",
+                                "65+"))
+head(age)
+plot1 <- ggplot(data = age, aes(x = agebracket, fill = sex)) +
+  geom_bar() +
+  facet_wrap(~ intent, scales = "free") +
+  theme_bw() +
+  scale_fill_manual(values = c("palevioletred1", "royalblue3")) +
+  ggtitle("Intent of Shootings")
+plot1
+
+
+```
+
+```{r plot2}
+age2 <- ggplot(data = age, aes(x = age, fill = intent)) +
+  geom_density(position = "fill", alpha = 0.5) +
+  facet_wrap(~ sex) +
+  theme_bw() +
+scale_fill_manual(values = c("aquamarine3", "coral", "cornflowerblue", "plum2"))
+age2
+```
+```{r}
+age$month <- as.integer(age$month)
+```
+
+```{r}
+age1 <- age %>%
+  mutate(season =
+           case_when(
+             month >= 3 & month <= 5 ~ "Spring",
+             month >= 6 & month <= 8 ~ "Summer",
+             month >= 9 & month <= 11 ~ "Fall",
+             month <= 2 | month == 12 ~ "Winter"))
+head(age1)
+age1
+```
+
+```{r plot4}
+ggplot(data = age1, aes(x = age, fill =season)) +
+  geom_bar() +
+  facet_wrap(~intent, nrow = 2, scales="free") +
+  scale_fill_manual(values = c("orange", "lightgreen", "coral1", "lightblue", "grey")) +
+  labs(x = "age",
+       title = "Age and Season Have an Effect on Type of Gun Death") +
+  theme_bw()
+```
+
+The plot above shows the gun deaths catagorized by the incident. Inside each graph it is colorcoded by the season in which the death happned. On the x axis it shows the age of person and on the y is the amount of deaths. This can give anyone a lot of information on how the seasons effect each age and cause. The scales had to be free because you could not tell for some of them. 
+```{r plot5}
+ggplot(data = age1, aes(x = race, fill =season)) +
+  geom_bar() +
+  facet_wrap(~intent, nrow = 2, scales = 'free') +
+  scale_fill_manual(values = c("orange", "lightgreen", "coral1", "lightblue", "grey")) +
+  labs(x = "race",
+       title = "Gun Deaths in Relationship to Age and Season") +
+  theme_bw()
+```
+The above graph is very similar to the one before except I switched age with race. Now this graph can tell us how age plays a role in the seasons and by the type of gun death. Once again the scales had to be free because you could not tell on two of the grpahs what the numbers were indicating. Whites dominate the sucicide catagory while blacks seem to dominate homicide. 
