@@ -1,0 +1,42 @@
+---
+title: "task11"
+author: "Tyler"
+date: "10/3/2022"
+output: 
+ html_document:
+   keep_md: TRUE
+---
+```{r}
+library(lubridate)
+library(tidyverse)
+library(ggrepel)
+library(downloader)
+```
+```{r}
+download.file("https://github.com/fivethirtyeight/data/raw/master/fandango/fandango_score_comparison.csv", "fandango_score_comparison")
+
+movie <- read_csv("fandango_score_comparison")
+
+movie
+```
+
+```{r}
+newmovie <- movie %>%
+  select(FILM, Fandango_Ratingvalue, RT_norm_round, Metacritic_norm_round,
+         IMDB_norm_round) %>%
+  pivot_longer(2:5, names_to = "ratingSite", values_to = "rating") %>%
+  select(FILM, ratingSite, rating)
+view(newmovie)
+```
+
+```{r}
+f20ratings <- head(newmovie, n = 20)
+view(f20ratings)
+```
+
+```{r plot1}
+plot1 <- ggplot(f20ratings, mapping=aes(x=FILM, y=rating, fill=ratingSite)) + 
+  geom_bar(stat = "identity", position = "dodge")
+plot1 
+```
+The graph above shows the first 20 ratings from each movie site. Since there are four movie sites that rated each movie, above shows only 5 movies and thier ratings. Someting to note, it seems that fandango rates each of these movies the highest above all the other sites. Of course this is not enough to show a trend as it is only 5 movies. 
