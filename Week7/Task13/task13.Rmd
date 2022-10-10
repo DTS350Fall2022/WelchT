@@ -1,0 +1,70 @@
+---
+title: "Task13"
+author: "Tyler"
+date: "10/10/2022"
+output:  
+  html_document:
+   keep_md: TRUE
+---
+```{r}
+library(tidyverse) 
+library(readr) 
+
+```
+
+```{r}
+RandomLetters <- read_lines("https://github.com/WJC-Data-Science/DTS350/raw/master/randomletters.txt")
+head(RandomLetters)
+
+RandomLetters_wNumbers <- read_lines("https://raw.githubusercontent.com/WJC-Data-Science/DTS350/master/randomletters_wnumbers.txt")
+head(RandomLetters_wNumbers)
+```
+```{r}
+LetterList <- c(str_sub(RandomLetters, start = 1, end = 1))
+for (i in seq(0, str_length(RandomLetters)/1700)) {
+  LetterList <- str_c(LetterList, str_sub(RandomLetters, start = i*1700, end = i*1700))
+}
+LetterList1 <- str_split(LetterList, "\\.", n = 2) [[1]][1]
+LetterList1
+```
+
+```{r}
+hidden <- unlist(str_extract_all(RandomLetters_wNumbers, ("(\\d)+")))
+decipher <- c()
+
+for (i in seq(1,length(hidden))) {
+  decipher <- append(decipher,letters[as.integer(hidden[i])])
+}
+decipher <- paste(decipher,collapse = " ")
+decipher
+```
+
+
+
+
+```{r}
+str_extract_all(RandomLetters, "(.)(.)(.)(.)\\4\\3\\2\\1")
+```
+
+
+
+```{r}
+longest <- c("1")
+nospaceperiod <- RandomLetters %>%
+  str_remove_all(" ") %>%
+  str_remove_all("\\.")
+
+vowels <- unlist(str_extract_all(nospaceperiod,"([aeiou])+"))
+vowels
+
+for (i in seq(1,length(vowels))) {
+  if (str_length(vowels[i]) > str_length(longest[length(longest)])) {
+    longest <- vowels[i]
+  }
+}
+longest
+
+```
+
+
+
