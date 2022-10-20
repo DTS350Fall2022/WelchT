@@ -1,0 +1,87 @@
+---
+title: "Task14"
+author: "Tyler"
+date: "10/19/2022"
+output:  
+  html_document:
+   keep_md: TRUE
+---
+```{r}
+library(tidyverse)
+library(knitr)
+library(downloader)
+library(dplyr)
+library(lubridate)
+library(ggplot2)
+library(grid)
+library(readr) 
+library(haven)
+library(readxl)
+library(stringi)
+library(stringr)
+```
+
+
+
+```{r}
+bob <- tempfile()
+download("https://raw.githubusercontent.com/WJC-Data-Science/DTS350/master/bible.csv", bob, mode = "wb")
+bib1 <- read_csv(bob)
+head(bib1)
+str(bib1)
+```
+
+```{r}
+old <- bib1 %>%
+  filter(volume_long_title == "The Old Testament") %>%
+  select(scripture_text)
+head(old)
+new <- bib1 %>%
+  filter(volume_long_title == "The New Testament") %>%
+  select(scripture_text)
+head(new)
+```
+
+```{r }
+versel <- function(df) {
+  vlength <- vector("integer", 0)
+  for(row in df) {
+    vlength <- append(vlength, str_length(row))
+  }
+  vlength
+}
+```
+
+```{r }
+mean(versel(old))
+mean(versel(new))
+```
+
+```{r}
+str_length(str_extract_all(old, "(?i)lord"))
+str_length(str_extract_all(new, "(?i)lord"))
+```
+```{r}
+wordcount <- bib1 %>%
+  mutate(word_count =
+           sapply(bib1$scripture_text, function(x) length(unlist(strsplit(as.character(x), "\\W+"))))
+  )
+```
+
+```{r}
+new1 <- wordcount %>%
+  subset(volume_id == 2)
+mean(new1$word_count)
+```
+
+```{r}
+ggplot(data = new1, aes(x = verse_number, y = word_count, fill = book_title)) +
+  geom_col() +
+  facet_wrap(~book_title, scales = 'free') +
+  theme(legend.position = "none") +
+  labs(x = "Verse Number",
+       y = "Word Count",
+       title = "New Testament Average Word by Verse")
+```
+This was certanly a hard code for me to do. So to answer the first question what is the average verse length, I made a function that counted the amount of verses in the old and new testement. For the secound question I used the string length function that we learned recently, and counted all the times lord was used between the old and new testiment. My hypothisis was that Lord was used a lot more in the old than the new, because Jesus was in the new testement. That seemed to be true. Finally I made a graph of the word average by verse in the new. This took some word but I jsut got the word count for the new testement and did it by the verse length. 
+
