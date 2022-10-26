@@ -1,0 +1,81 @@
+---
+title: "CaseStudy8"
+author: "Tyler"
+date: "10/26/2022"
+output: 
+  html_document:
+   code_folding: "hide"
+   keep_md: TRUE
+---
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(readr)
+library(haven)
+library(downloader)
+library(foreign)
+library(readxl)
+library(corrplot)
+```
+
+```{r}
+temp1 <- tempfile()
+download("https://github.com/WJC-Data-Science/DTS350/raw/master/sales.csv", temp1, mode = "wb")
+sales <- read_csv(temp1)
+```
+```{r}
+head(sales)
+tail(sales)
+```
+```{r}
+sales <- with_tz(sales, tzone = "US/Mountain")
+head(sales)
+```
+
+
+```{r}
+hourlydat <- sales %>%
+  mutate(hourly = ceiling_date(Time, "hour")) %>%
+  mutate(daily = ceiling_date(Time, "day")) %>%
+  mutate(Hour = hour(hourly)) %>%
+  group_by(Name, Hour) 
+head(hourlydat)
+```
+
+```{r plot 1}
+ggplot(hourlydat, aes(x=Hour, y=Amount )) +
+  geom_bar(stat="identity",color="lightblue" )+
+  theme(axis.text.x = element_text(angle = 90, size = 10))+
+  labs(x="Hours of Operation (military time)", y="Amount", title="Most amount is made during the day between 11am and 5pm")
+```
+#My suggestion would be to open between 9am and 10am and close around 10pm.
+```{r}
+dailydat <- sales %>%
+  mutate(daily = ceiling_date(Time, "day")) %>%
+  mutate(Daily = wday(daily)) %>%
+  group_by(Name, Daily) 
+head(dailydat)
+```
+
+```{r}
+ggplot(dailydat, aes(x=Daily, y=Amount )) +
+  geom_bar(stat="identity",color="lightblue" )+
+  theme(axis.text.x = element_text(angle = 90, size = 10))+
+  labs(x="Weekday(1-7, Sun-Sat)", y="Amount", title="Most Customers Come in on Friday and Saturday")
+```
+#It seems that most customers come in on friday and saturday. I would open the store on Tuesday through Saturday 
+```{r}
+sumsales<- sales%>%
+  group_by(Name)%>%
+  summarise(across(Amount, sum))
+sumsales
+```
+
+```{r}
+ggplot(sumsales, aes(x=Name, y=Amount )) +
+  geom_bar(stat="identity" )+
+  theme(axis.text.x = element_text(angle = 90, size = 10))+
+  labs(x="Company", y="Amount", title="HotDiggity seems to be the best investment")
+```
+#It seems that HotDiggity, with the other recomendations that I have made would bes the best when investing in these companies. 
