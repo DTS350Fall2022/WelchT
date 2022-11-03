@@ -1,0 +1,64 @@
+---
+title: "Task17"
+output: 
+  html_document:
+    keep_md: TRUE
+---
+
+```{r}
+library(ggplot2)
+library(readr)
+library(knitr)
+library(tidyverse)
+library(dplyr)
+library(forcats)
+library(corrplot)
+library(tidyquant)
+library(timetk)
+library(downloader)
+library(dygraphs)
+```
+#My stocks AAPL, TSLA, HD My friend: AMZN, F, GOOGL
+```{r}
+(Apple <- tq_get("AAPL", get = "stock.prices"))
+(Tesla <- tq_get("TSLA", get = "stock.prices"))
+(Home_Depot <- tq_get("HD", get = "stock.prices"))
+(Amazon <- tq_get("AMZN", get = "stock.prices"))
+(Ford <- tq_get("F", get = "stock.prices"))
+(Google<- tq_get("GOOGL", get = "stock.prices"))
+
+```
+
+```{r}
+mystock <- tq_get(c("AAPL", "TSLA", "HD"), get = "stock.prices", from = "2021-11-02", to = today())
+head(mystock)
+```
+
+```{r}
+friend <- tq_get(c("AMZN", "F", "GOOGL"), get = "stock.prices", from = "2021-11-02", to = today())
+tail(friend)
+```
+
+```{r}
+together <- tq_get(c("AAPL", "TSLA", "HD","AMZN", "F", "GOOGL"), get = "stock.prices", from = "2021-11-11", to = today())
+head(together)
+```
+
+```{r}
+Combined <- together %>%
+  select(symbol, date, adjusted) %>%
+  pivot_wider(names_from = symbol, values_from = adjusted) %>%
+  tk_xts(date_var = date)
+dygraph(Combined)
+```   
+#As we can learn from the graph above it seems that home depot was the best performer. Most stocks stayed the same or had a decline in the case of home depot can amazon. 
+```{r}
+together %>%
+  filter(symbol == "HD") %>%
+  ggplot(aes(x = date, y = adjusted)) +
+  geom_candlestick(aes(open = open, high = high, low = low, close = close)) +
+  labs(title = "Take Two Candlestick Chart", 
+       y = "Closing Price", x = "") + 
+  theme_tq()
+```
+#Using the candle stick plot you can see that home depot had been on a steady decline. So while it may seem like home depot won, the compnay has had an obvous fall. 
