@@ -1,0 +1,97 @@
+---
+title: "Case9"
+output: 
+  html_document:
+    keep_md: TRUE
+---
+
+```{r}
+library(ggplot2)
+library(readr)
+library(knitr)
+library(tidyverse)
+library(dplyr)
+library(forcats)
+library(corrplot)
+library(tidyquant)
+library(timetk)
+library(downloader)
+library(dygraphs)
+```
+
+```{r}
+tickers_today <- c("CXW", "F", "GM", "KR", "WDC", "NKE","T", "WDAY", "WFC", "WMT")
+start<-today()-years(5)
+end<-today()
+```
+
+```{r}
+activepl <- tq_get(tickers_today, get = 'stock.prices', from = start, to = end)
+```
+
+```{r}
+firstpl <- activepl %>%
+  select(symbol, date, adjusted) %>%
+  pivot_wider(names_from = symbol, values_from = adjusted) %>%
+  tk_xts(date_var = date) 
+dygraph(firstpl) %>%
+  dyRangeSelector()
+```
+
+```{r}
+volume <- activepl  %>%
+  ggplot(aes(x = date, y = volume)) +
+  geom_line() +
+  labs(title = "Volume in 5 Years", 
+       y = "volume", x = "Time") + 
+  coord_x_date(xlim = c(start, end)) +
+  facet_wrap(~symbol)+
+  theme_tq()
+volume
+```
+```{r}
+monthlyReturns <- activepl %>%
+  group_by(symbol) %>%
+  tq_transmute(adjusted, mutate_fun = monthlyReturn) %>%
+  select(symbol, date, monthly.returns) %>%
+  pivot_wider(names_from = symbol, values_from = monthly.returns) %>%
+  tk_xts(date_var = date)
+
+
+dygraph(monthlyReturns, main = "Stock Monthly Returns") %>%
+  dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2"))
+```
+#So I belive that the first two visulizations are the best at answering the question about volume. Volume when it comes to a stock is how much it is traded.The amount of trading doesn't neccarly mean that the stock is good or bad. So I used the three above visuals to to show what I think needs to be known about the stock. The best perfomance, the most volume, and the month to month retuns. This should give an all around answer to volume and the performance of the stock. A great example of volume is WDAY. While it may have the best month comparison and the higest value stock, when you look at its volume it is very low. 
+
+```{r}
+inclass <- tq_get(c("QQQ","MO","KO","ABB","LH","CINF"), get = "stock.prices", from = today()-years(5), to = today())
+head(inclass)
+```
+```{r}
+moreinclass <- inclass %>%
+ select(symbol, date, adjusted) %>%
+  pivot_wider(names_from = symbol, values_from = adjusted) %>%
+   tk_xts(date_var = date)
+```
+
+```{r}
+dygraph(moreinclass, main = "Ticker Chart") %>%
+  dyShading(from = today()-years(5), to = today()) %>%
+  dyRangeSelector()
+```
+
+```{r}
+monthlyReturns1 <- inclass %>%
+  group_by(symbol) %>%
+  tq_transmute(adjusted, mutate_fun = monthlyReturn) %>%
+  select(symbol, date, monthly.returns) %>%
+  pivot_wider(names_from = symbol, values_from = monthly.returns) %>%
+  tk_xts(date_var = date)
+
+
+dygraph(monthlyReturns1, main = "Stock Monthly Returns") %>%
+  dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2"))
+```
+
+
+
