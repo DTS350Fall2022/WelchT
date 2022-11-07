@@ -1,0 +1,75 @@
+---
+title: "Task18"
+author: "Tyler"
+date: "11/7/2022"
+output: 
+  html_document:
+   code_folding: "hide"
+   keep_md: TRUE
+---
+
+```{r}
+library(tidyverse)
+library(sf)
+library(USAboundaries)
+library(ggplot2)
+library(readr)
+library(knitr)
+library(tidyverse)
+library(dplyr)
+library(forcats)
+library(downloader)
+library(corrplot)
+library(ggrepel)
+library(sf)
+library(maps)
+```
+
+```{r}
+id <- us_counties(states = "ID")
+states <- sf::st_as_sf(map("state", plot = FALSE, fill = TRUE))
+```
+
+
+```{r}
+cities <- us_cities()
+```
+
+
+```{r}
+topcity <- cities %>%
+  filter(state_name != 'Alaska', state_name != 'Hawaii') %>%
+  group_by(state_name) %>%
+  arrange(desc(population)) %>%
+  slice(1:3)
+head(topcity)
+```
+
+
+```{r}
+number1 <- topcity %>%
+  slice(1:1)
+head(number1)
+
+number2 <- topcity %>%
+  slice(2:2)
+
+number3 <- topcity %>%
+  slice(3:3)
+```
+
+
+```{r}
+ggplot() +
+  geom_sf(data = states, fill = NA) +
+  geom_sf(data = id, fill = NA) +
+  geom_sf(data = number3, aes(size = population/1000), color = "lightblue") +
+  geom_sf(data = number2, aes(size = population/1000), color = "royalblue1") +
+  geom_sf(data = number1, aes(size = population/1000), color = "royalblue4") +
+  geom_sf_label(data = number1, aes(label = city), color = "darkblue", nudge_x = 1.5, nudge_y = 1, size = 2) +
+  scale_size_continuous(name = 'Population\n(1,000)') +
+  labs(title="USA Top Cities", x="Latitude", y="Longtitude")+
+  theme_bw()
+
+```
+
