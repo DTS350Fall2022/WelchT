@@ -1,0 +1,124 @@
+---
+title: "Case101"
+author: "Tyler"
+date: "11/7/2022"
+output: 
+  html_document:
+   code_folding: "hide"
+   keep_md: TRUE
+---
+
+```{r}
+library(tidyverse)
+library(sf)
+library(USAboundaries)
+library(ggplot2)
+library(readr)
+library(knitr)
+library(tidyverse)
+library(dplyr)
+library(forcats)
+library(downloader)
+library(corrplot)
+library(ggrepel)
+library(sf)
+library(maps)
+library(readr)
+library(remotes)
+library(dygraphs)
+library(ggsflabel)
+library(plotly)
+library(gridExtra)
+
+```
+
+```{r}
+permits_data <- tempfile()
+download("https://raw.githubusercontent.com/WJC-Data-Science/DTS350/master/permits.csv", 
+         permits_data, mode = "wb")
+permits <- read_csv(permits_data)
+```
+
+```{r}
+counties<-us_counties()
+FIPS<-permits%>%
+  mutate(state=as.character(state), stateFIPS=str_pad(state, 2,pad="0")) %>%
+  mutate(county=as.character(county), countyFIPS=str_pad(county, 3,pad="0"))
+FIPS
+```
+
+
+
+```{r}
+FIPS1 <- FIPS%>%
+  mutate(geoid=paste0(stateFIPS,countyFIPS))
+countyFIP <- merge(FIPS1,counties, by = "geoid") %>%
+  group_by(state_name,year) %>%
+  summarise(geoid=sum(value))
+```
+
+
+```{r}
+USA <- ggplot(data = countyFIP, aes(x = year, y = geoid, color = state_name)) +
+  geom_line() +
+  geom_point() +
+  labs(title="USA", x = "Year", y = "Permit Amount") +
+  theme_bw() +
+  theme(legend.position = 'none') 
+USA
+```
+
+
+
+```{r}
+Georgia <- countyFIP %>%
+  filter(state_name == 'Georgia') %>%
+  ggplot(aes(x = year, y = geoid)) +
+  geom_point() +
+  geom_line() +
+  labs(title="Georgia",x = 'Year', y = 'Permit Amount') +
+  theme_bw() +
+  theme(legend.position = 'none')
+Georgia
+```
+
+```{r}
+Tennessee <- countyFIP %>%
+  filter(state_name == 'Tennessee') %>%
+  ggplot(aes(x = year, y = geoid)) +
+  geom_point() +
+  geom_line() +
+  labs(title="Tennessee",x = 'Year', y = 'Permit Amount') +
+  theme_bw() +
+  theme(legend.position = 'none')
+Tennessee
+```
+
+```{r}
+Alabama <- countyFIP %>%
+  filter(state_name == 'Alabama') %>%
+  ggplot(aes(x = year, y = geoid)) +
+  geom_point() +
+  geom_line() +
+  labs(title="Alabama",x = 'Year', y = 'Permit Amount') +
+  theme_bw() +
+  theme(legend.position = 'none')
+Alabama
+```
+
+```{r}
+Arkansas <- countyFIP %>%
+  filter(state_name == 'Arkansas') %>%
+  ggplot(aes(x = year, y = geoid)) +
+  geom_point() +
+  geom_line() +
+  labs(title="Arkansas",x = 'Year', y = 'Permit Amount') +
+  theme_bw() +
+  theme(legend.position = 'none')
+Arkansas
+```
+
+```{r}
+grid.arrange(USA, Georgia, Tennessee, Alabama, Arkansas, nrow = 3)
+```
+#In the above graphs it shows the bulding permits for each state and the entire United States. As can be seen for the viusals above, I chose to use scatter plot and line graph to show the changes of the permits from year to year. Comparing all of the visuals you can see that the 2008 housing market crash had a huge impact on the United States as a whole. Each state had a sharp decline in the permits. Obviusly from the above graphs I only did sothern states, but each state has vastly different economies and populations and are a good representation of the entire US. 
