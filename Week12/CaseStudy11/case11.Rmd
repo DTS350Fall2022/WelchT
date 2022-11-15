@@ -1,0 +1,117 @@
+---
+title: "Case11"
+author: "Tyler"
+date: "11/14/2022"
+output: 
+  html_document:
+   code_folding: "hide"
+   keep_md: TRUE
+---
+
+```{r}
+library(tidyverse)
+library(sf)
+library(USAboundaries)
+library(ggplot2)
+library(readr)
+library(knitr)
+library(tidyverse)
+library(dplyr)
+library(forcats)
+library(downloader)
+library(corrplot)
+library(ggrepel)
+library(sf)
+library(maps)
+library(readr)
+library(remotes)
+library(dygraphs)
+library(ggsflabel)
+library(plotly)
+library(gridExtra)
+library(leaflet)
+```
+
+```{r}
+permits_data <- tempfile()
+download("https://raw.githubusercontent.com/WJC-Data-Science/DTS350/master/permits.csv", 
+         permits_data, mode = "wb")
+permits <- read_csv(permits_data)
+head(permits)
+```
+```{r}
+filterPA<- permits %>%
+  filter(StateAbbr=="PA",year==2010)
+head(filterPA)
+```
+
+```{r}
+county1 <- read_csv("CountyDat.csv")
+head(county1)
+permitsPA<-filterPA %>%
+  mutate(county = as.character(county))
+head(permitsPA)
+county2<-county1 %>%
+  mutate(county=as.character(`County Code Number`))
+head(county2)
+```
+
+```{r}
+combine<- left_join(county2, permitsPA, by="county")
+head(combine)
+```
+
+
+
+
+```{r}
+combine1 <- combine %>%
+  arrange(desc(value))
+head(combine1)
+```
+
+```{r}
+topcounty <- combine1 %>%
+  filter(row_number() == 1)
+topcounty
+```
+
+
+```{r}
+PA <- us_counties(states = 'PA')
+PAcounties <- ggplot(PA) +
+  geom_sf()
+PAcounties
+```
+
+
+```{r}
+combine1$quartile <- ntile(combine1$value, 4)
+combine1
+```
+Quartile 4 is top 25%
+Quartile 3 is top 25-50%
+Quartile 2 is bottom 25-50%
+Quartile 1 is bottom 25%
+```{r}
+ntile4<- combine1%>%
+  filter(quartile==4)
+ntile3 <- combine1%>%
+  filter(quartile==3)
+ntile2<- combine1%>%
+  filter(quartile==2)
+ntile1 <- combine1%>%
+  filter(quartile==1)
+```
+
+
+```{r}
+leaflet() %>%
+  addTiles() %>%
+  addCircleMarkers(data = ntile4,radius = 7,color = "blue",stroke = FALSE,fillOpacity = 1,popup = ~county,label = ~value)%>%
+addCircleMarkers(data = ntile3,radius = 7,color = "red",stroke = FALSE,fillOpacity = 1,popup = ~county,label = ~value)%>%
+addCircleMarkers(data = ntile2,radius = 7,color = "yellow",stroke = FALSE,fillOpacity = 1,popup = ~county,label = ~value)%>%
+addCircleMarkers(data = ntile1,radius = 7,color = "green",stroke = FALSE,fillOpacity = 1,popup = ~county,label = ~value)
+```
+
+#So to ge this code to work I first had to make sure that joining the two datasets together would work. To do that I simply mutated each set so that the country codes were chacters and bith said county. I also had to get just pennsilvania for the main permits dataset. Once they were joined I used the entile functin to find the 4 quateriles that the question was looking for. Once I did that I used leaflet to drop all the pins on each county. For some reason there are multiple values for some counties and I was unable and unsure how to adress that. 
