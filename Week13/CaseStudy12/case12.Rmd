@@ -1,0 +1,106 @@
+---
+title: "Case12"
+author: "Tyler"
+date: "11/28/2022"
+output: 
+  html_document:
+   code_folding: "hide"
+   keep_md: TRUE
+---
+
+```{r}
+library(tidyverse)
+library(sf)
+library(USAboundaries)
+library(ggplot2)
+library(readr)
+library(knitr)
+library(tidyquant)
+library(dplyr)
+library(forcats)
+library(downloader)
+library(corrplot)
+library(ggrepel)
+library(sf)
+library(maps)
+library(readr)
+library(remotes)
+library(dygraphs)
+library(ggsflabel)
+library(plotly)
+library(gridExtra)
+library(gganimate)
+library(leaflet)
+library(maps)
+library(grid)
+```
+
+
+```{r}
+avocado <- read_csv("avocado.csv")
+head(avocado)
+tail(avocado)
+```
+
+
+```{r}
+region <- avocado %>% distinct(region)
+```
+
+#Region 
+```{r}
+regions <- c("West", "Midsouth", "Northeast", "SouthCentral", "Southeast", "GreatLakes", "Plains")
+avocado_regions <- avocado %>%
+  filter(region == regions)
+head(avocado_regions)
+```
+unique(avocado$region)
+
+#City
+```{r}
+cities = c("Albany", "Boston", "Chicago", "Denver", "Jacksonville", "NewYork", "Philadelphia", "Portland", "Sacramento", "StLouis", "Atlanta", "Detroit", "LasVegas", "SanDeigo", "Syracuse", "Columbus", "Houston", "GrandRapids", "LosAngeles", "Nashville", "Pittsburgh", "SanFrancisco", "Tampa", "SanDi", "Boise", "Charlotte", "Indianapolis", "Louisville", "Orlando", "Roanoke", "Seattle", "Spokan")
+avocado_cities <- avocado %>%
+  filter(region == cities)
+```
+
+
+
+#Total 
+```{r}
+unique(avocado$region)
+avocado_us <- avocado %>%
+  filter(region == "TotalUS")
+head(avocado_us)
+```
+#Avocado Prices over Time 
+```{r}
+total_us_plot <- ggplot(data = avocado_us, mapping = aes(x =Date, y =AveragePrice, color =year)) +
+  geom_line() + 
+  labs(title = "Average Avocado Prices from 2015 to 2018", subtitle = "Data Source=Total of U.S", x = "Date", y = "Average Price") 
+total_us_plot
+total_us_plot + transition_reveal(Date)
+```
+#It is worth noting that the price of the avacado is not static, and seems to constantly be changing over time
+
+#Avocado Prices for US Regions Plot
+```{r}
+price_region_plot <- ggplot(data = avocado_regions, mapping = aes(x = Date, y = AveragePrice, color = `Total Volume`)) +
+  geom_point() + 
+  labs(title = "Average Avocado Prices from 2015 to 2018 with respect to volume", subtitle = "Data Source=Regions", x = "Date", y = "Average Price") + transition_time(Date)
+price_region_plot
+```
+#It seems that there is a lot more volume when the price is lower. This makes sense as more people buy avocados when they are cheap 
+
+#Avocado Prices for Each US City 
+```{r}
+price_city_plot <- ggplot(data = avocado_cities, mapping = aes(x = Date, y = AveragePrice, color = `Total Volume`)) +
+  geom_line() +
+  facet_wrap(~region) +
+  labs(title = "Average Avocado Prices", subtitle = "From Each US City", x = "Date", y = "Average Price")
+price_city_plot 
+```
+#Iw would tell the friend to not live in San Francisco, New York, Chicago, and Jacksonville. The best spot would be columbus, Atlanta, Pittburg, and Nashville. 
+
+
+#I did the rest of this case on a seprate document beacuse it will not run. 
+
