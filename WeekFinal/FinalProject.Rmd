@@ -1,0 +1,302 @@
+---
+title: "Violent Crime in America"
+author: "Tyler"
+date: "11/25/2022"
+output: html_document
+---
+#Gets rid of error messages in the R document
+```{r setup, include=FALSE} 
+knitr::opts_chunk$set(warning = FALSE, message = FALSE) 
+```
+
+#Loading in all packages 
+```{r}
+library(tidyverse)
+library(sf)
+library(USAboundaries)
+library(ggplot2)
+library(readr)
+library(knitr)
+library(tidyquant)
+library(dplyr)
+library(forcats)
+library(downloader)
+library(corrplot)
+library(ggrepel)
+library(sf)
+library(maps)
+library(readr)
+library(remotes)
+library(dygraphs)
+library(ggsflabel)
+library(plotly)
+library(gridExtra)
+library(gganimate)
+library(leaflet)
+library(maps)
+library(grid)
+library(usmap)
+library(mapview)
+library(rgdal)
+library(RColorBrewer)
+```
+###Main question I am asking: What is the state of violent crime in the United States?
+
+
+
+#This code chunk is used to read in my datasets for the following visulizations. I read them in and looked at them to make sure everything loeaded in properly.  
+```{r}
+Ymap <- read.csv(file = 'table-1.csv')
+statemap<-read.csv(file = "state_crime.csv")
+crimemap<-read.csv(file = 'crime_clean.csv')
+police<-read.csv(file = 'total_officer.csv')
+```
+#All the data sets are from two websties that are both FBI websites. They have a .gov and are highly accurate. 
+#1:https://crime-data-explorer.app.cloud.gov/pages/downloads
+#2:https://ucr.fbi.gov/crime-in-the-u.s
+
+
+
+
+##QUESTION 1: Has violent crime increased or decreased over the years?
+
+#This line of code gets rid of all the commas in the data set, so that the numbers can be formulated into a graph. 
+```{r}
+Ymap$Violent.crime2 <- as.numeric(gsub(",","",Ymap$Violent.crime2))
+```
+
+#Here is the plot. This is a standard point/line plot.As can be seen below the code takes the total number of crimes commited in the United States and plots them for each year. I added some code to geom_point to make the graph have a certain shape and color for each point. The shape I chose was a circle and the color to fill the circle was blue. The data is from the table-1.csv.   
+```{r}
+Ymap %>%
+  ggplot( aes(x=ï..Year, y=Violent.crime2)) +
+    geom_line( color="grey") +
+    geom_point(shape=21, color="black", fill="lightblue", size=4) +
+    ggtitle("Violent Crime Has Decreased Over the Years in Unted States(2000-2019)")+
+  labs(x="Year",y="Total Violent Crime in US")+
+  theme_bw()
+```
+#ANALYSIS:It can be seen that the total amount of crime in the United States has been deacreasing over the years. There was a slight uptick in 2015 and 2005, the was also a major decline between the years of 2006 and 2014. So it seems that violent crime in the United States has gone down in a major way throuhgout the years. 
+
+
+
+##QUESTION 2: Could police employment have an effect on total crime?
+
+#The code below was used to get ride of the commas in the data set and make the coulumn numeric so that the data could be used properly in the graph.
+```{r}
+police$Total <- as.numeric(gsub(",","",police$Total))
+```
+
+#Since the two datasets have different span of years I had to filter the data. I filtered out all the years in each set so that they lined up perfectly. So now each graph is data from 2004 through 2019.
+```{r}
+totcrimeup <- Ymap  %>% 
+  filter(ï..Year>=2004)
+
+policeup<-police %>%
+  filter(ï..Year<=2019)
+```
+
+#The code below is the the two graphs that needed to be created to visuilize the data. The total crime graph is the same code as the one above with some slight changes. The total police employment graph is also the exact same besides the data is represents. This makes it easy for the viewer to draw conclusion from the graphs.The data for police emplyment graph is from the police.csv.  
+```{r}
+
+totcrime<-ggplot(totcrimeup, aes(x=ï..Year, y=Violent.crime2)) +
+    geom_line( color="grey") +
+    geom_point(shape=21, color="black", fill="lightblue", size=4) +
+    ggtitle("Violent Crime Has Decreased Over the Years in Unted States(2004-2019)")+
+  labs(x="Year",y="Total Violent Crime in US")+
+  theme_bw()
+policeup1<- ggplot(policeup, aes(x=ï..Year, y=Total)) + 
+  geom_line( color="grey") +
+    geom_point(shape=21, color="black", fill="lightblue", size=4) +
+    labs(title="Total Police Employment in the United States(2004-2019)", x="Year",y="Total Police Employed")+
+  theme_bw()
+```
+
+#Grid arrange to put the two graphs side by side so that it is easy to tell if police employment has an effect on the crimes being comminted. 
+```{r}
+grid.arrange(totcrime,policeup1, ncol=2)
+```
+#ANALYSIS: It seems that police employement do have an effect on the amount of crimes being commited but not in the tradtional sense. My hypothisis was that crime was going down because more police were being hired. But the graphs show that as crimes went down, there were less police employed, and as crime went up, more police were employed. So, the graphs show that cops are employed when they are needed, if they are not needed then they are fired, let go, or they quit. 
+
+
+
+
+
+
+##QUESTION 3: Do the crime rates differ for each states, and which states seem to be struggling with high crime rates?  
+
+#This code filters the state by state crime totals to just 2019. This allows for the final graph to have the most updated crime totals for the United States.  
+```{r}
+statemap1 <- statemap  %>% 
+  filter(Year == 2019)
+```
+
+#The code below adds FIPS codes as well as abrrivations to the state names so that the plot_usmap function can run.
+```{r}
+statemap1$fips<-statepop$fips
+statemap1$abbr<-statepop$abbr
+```
+
+#Below is the use of plot_usmap code. This code takes the data from state_crime.csv and plots the crime rates for each state. Below you can see the use of colors white and red which each represent the low and high crime rates. This means that a state that is light red has a high crime rate and a state that is dark blue has a low crime rate. Again the code that is used has been filtered for 2019, which is the most updated crime statistics from FBI.com.  
+```{r}
+plot_usmap(
+  data = statemap1, values = "Data.Rates.Property.All", lines = "red"
+) + 
+  scale_fill_distiller(
+    palette="Spectral", name = "Crime Rate Per 100,000", label = scales::comma
+  ) + 
+  labs(title = "US States for Year 2019", subtitle = "Crimes Commited Per 100,000") +
+  theme(legend.position = "right")
+```
+#ANALYSIS:As can be seen above, the south seems to have higher crime rates than the rest of the country. States like Lousiana, New Mexico, and South Caroline seem to have the highest rate of crime. Also, Northern states and Idaho seems to have the lowest crimes rates out of the country. Overall, most states seem pretty even when it comes to crime rates throughout the United States.  
+
+
+
+
+
+
+##Question 3: Which cities have the highest crime rate? How do they compare?
+
+#To start I had to change the names of each coulum. This is so when you look at the interactive map and click on the dot, it will provide all the data for that city. I wanted to make sure when someone clicked on the dot, they could understand the information that was being provided to them. 
+```{r}
+colnames(crimemap)<- c("City","Year","Total Population","Total_Violent_Crime_Per_100000","Homicide Per 100,000","Rape Per 100,000","Robbery Per 100,000","Aggrivated Assualt Per 100,000","Long","Lat")
+
+```
+
+#Here I had to filter to just have the year 2014 so we can have the most accurate state of what the current violance in major cities is
+```{r}
+crimemap1 <- crimemap  %>% 
+  filter(Year == 2014)
+```
+
+
+#Once we have the most recent statistics, we can then create a map that shows the violent crimes commited per 100,000 in each city. As you can see below, I used mapview, and color coded the dots to represent the total violent crime statics for each city. The data that is being used is from 2014, and is what the FBI considered to be major cities in the United States. I had to add a sequence line of code to have a better distinction between the crime rates in the cities. The data used for this is from the crime_clean.csv.  
+```{r}
+mapview(crimemap, xcol = "Long", ycol = "Lat", zcol="Total_Violent_Crime_Per_100000", at=seq(0,2000, by=500), crs = 4269, grid = FALSE)
+```
+#ANALYSIS: The conclustion that can be drawn here is that for the most part the major cities in the United States in 2014 has fairly similar crime rates. I had to use a sequence line of code to get a better distinction of what the crime rates were. I think further analysis can be done by the view who uses the interactive map.The question of "How do the cities compare?" can be left up to interpritation, but the map does a perfect job at comparing cities and showing all the crime statistics within each city.  
+
+
+
+
+
+
+
+##QUESTION 4: Have the top three cities had any changes in the rate of crimes commited? Have they been going up or down? Which city had the biggest change?  
+
+#I had to filter the data so that only the top three cities with the highest crime rate were in my data set. 
+```{r}
+crimemap2 <-   filter(crimemap,(City=="Memphis, TN"| City=="Detroit, MI"| City=="St. Louis, MO"))
+```
+
+#Once I had the top three cities I created a simple line graph. This graph represents the total violent crime per 100,000 throuhgout the years in these select cities. I also added an animation line of code to animate the graph. This gives a better visulization to the viewer too see how activly crime has changed in each city. 
+```{r}
+ggplot(crimemap2, aes(x =Year, y =Total_Violent_Crime_Per_100000, colour = City)) +
+  geom_line()+
+  theme_bw()+
+  labs(x="Year",y="Total Violent Crime Per 100,000", title="Total Violent Crime in Cities with Highest Crime rate(1975-2014)")+
+  transition_reveal(Year)
+anim_save("crime_cities.gif")
+```
+#ANALYSIS: Obviously from looking at the graph the cities have had so substantial changes in the crime rates throughout the years. While the all sort of come down in more recent year, all the cities went up during the 90s. St. Louis in the 90s had a major spike in crime. St.Louis had the biggest change in crime, esspically when you compare the city's peak to were it is today.  
+
+
+
+
+
+
+##QUESTION 5: Have all crimes followed the general down trend?   
+
+#This code below took out all commas in the datasets so that they could be converted into a type numeric. The graphs would not produce unless done this way. 
+```{r}
+Ymap$Murder.and.nonnegligent..manslaughter <- as.numeric(gsub(",","",Ymap$Murder.and.nonnegligent..manslaughter))
+Ymap$Rape..legacy..definition.4 <- as.numeric(gsub(",","",Ymap$Rape..legacy..definition.4))
+Ymap$Robbery <- as.numeric(gsub(",","",Ymap$Robbery))
+Ymap$Aggravated..assault <- as.numeric(gsub(",","",Ymap$Aggravated..assault))
+Ymap$Property..crime <- as.numeric(gsub(",","",Ymap$Property..crime))
+Ymap$Burglary <- as.numeric(gsub(",","",Ymap$Burglary))
+Ymap$Larceny..theft <- as.numeric(gsub(",","",Ymap$Larceny..theft))
+Ymap$Motor..vehicle..theft <- as.numeric(gsub(",","",Ymap$Motor..vehicle..theft))
+```
+
+#Below is all the different crimes in the dataset from the FBI. Each one is setting up a geom point and line graph. THe data being used here is from table-1.csv. Each of these have different colors and shapes so there can be an easy distinction between each of the datasets.  
+```{r}
+murder<-ggplot(Ymap, aes(x=ï..Year, y=Murder.and.nonnegligent..manslaughter)) +
+    geom_line( color="grey") +
+    geom_point(shape=8, color="orange", size=4) +
+    ggtitle("Total Murder and Nonnegligent Manslaughter")+
+  labs(x="Year",y="Total Crimes Commited")+
+  theme_bw()
+
+rape<-ggplot(Ymap, aes(x=ï..Year, y=Rape..legacy..definition.4)) +
+    geom_line( color="grey") +
+    geom_point(shape=1, color="darkred", size=4) +
+    ggtitle("Total Rape")+
+  labs(x="Year",y="Total Crimes Commited")+
+  theme_bw()
+
+robbery<-ggplot(Ymap, aes(x=ï..Year, y=Robbery)) +
+    geom_line( color="grey") +
+    geom_point(shape=2, color="purple", size=4) +
+    ggtitle("Total Robbery")+
+  labs(x="Year",y="Total Crimes Commited")+
+  theme_bw()
+
+assualt<-ggplot(Ymap, aes(x=ï..Year, y=Aggravated..assault)) +
+    geom_line( color="grey") +
+    geom_point(shape=3, color="darkgreen", size=4) +
+    ggtitle("Total Aggravated Assualt")+
+  labs(x="Year",y="Total Crimes Commited")+
+  theme_bw()
+
+property<-ggplot(Ymap, aes(x=ï..Year, y=Property..crime)) +
+    geom_line( color="grey") +
+    geom_point(shape=4, color="blue", size=4) +
+    ggtitle("Total Property Crime")+
+  labs(x="Year",y="Total Crimes Commited")+
+  theme_bw()
+
+burglary<-ggplot(Ymap, aes(x=ï..Year, y=Burglary)) +
+    geom_line( color="grey") +
+    geom_point(shape=5, color="black", size=4) +
+    ggtitle("Total Burglary Crime")+
+  labs(x="Year",y="Total Crimes Commited")+
+  theme_bw()
+
+vehicle<-ggplot(Ymap, aes(x=ï..Year, y=Motor..vehicle..theft)) +
+    geom_line( color="grey") +
+    geom_point(shape=7, color="pink", size=4) +
+    ggtitle("Total Motor Vehicle Theft")+
+  labs(x="Year",y="Total Crimes Commited")+
+  theme_bw()
+
+larceny<-ggplot(Ymap, aes(x=ï..Year, y=Larceny..theft)) +
+    geom_line( color="grey") +
+    geom_point(shape=6, color="brown", size=4) +
+    ggtitle("Total Larceny Theft")+
+  labs(x="Year",y="Total Crimes Commited")+
+  theme_bw()
+```
+
+
+#Below the code shows each of the graphs indvidually. This makes it easy to see if each one is following a genreal trend downward.  
+```{r}
+murder
+rape
+robbery
+assualt
+property
+burglary
+vehicle
+larceny
+```
+
+#This final line of code uses a grid arrange to show the three graphs that do not follow the trend of crime in America. 
+```{r}
+grid.arrange(murder,rape,assualt, ncol=2)
+```
+#ANALYSIS: Of all the different crimes that were commited throughout the years murder, rape, and assualt all went up. These three crimes did not follow the trend downward in crime. These crimes also helped to push the total amount of crimes upward. That is why when you look at the original graph you see a slight uptick in crime starting in 2015. My assumption is that these three crimes were the main factors in why the overall crimes commited went up. 
+
+
+
+
+###CONCLUSION: The state of crime in the United States is going in a good direction. Crime has seen a decrease in recent years. This decrease was not due to police employement. When it come to state by state crime rates, most states are pretty even, with some problem areas like Lousiana, New Mexico, and South Carolina, and some very low crime rates in the northern part of the United States and Idaho. Ctites were also similar, though cities like Memphis, Detorit, and St. Louis have some probelms. Of those three, they have had some big peaks and valleys, with St. Louis haveing the biggest peak in the 90s. Finally, out of all crimes commited, all of them have seen a decline similar to the orginal graph besides murder, rape, and assualt, which all saw spikes starting around 2015. 
